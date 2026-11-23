@@ -127,6 +127,17 @@ export function createApp() {
     },
   }));
 
+  // ── Explicit root route for SPA ──────────────────────────────────────────
+  app.get('/', (_req, res) => {
+    res.setHeader('Cache-Control', 'no-cache');
+    const indexPath = join(publicDir, 'index.html');
+    if (existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(404).json({ error: 'Not found' });
+    }
+  });
+
   // ── SPA fallback ─────────────────────────────────────────────────────────
   // Express 5: use explicit path pattern
   app.get('/{*path}', (_req, res) => {
