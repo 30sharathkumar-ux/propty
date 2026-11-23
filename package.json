@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "GenAI-powered campus laboratory resource-sharing platform",
   "type": "module",
-  "main": "src/server.js",
   "engines": {
     "node": "22.x"
   },
