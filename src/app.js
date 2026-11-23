@@ -131,7 +131,12 @@ export function createApp() {
   // Express 5: use explicit path pattern
   app.get('/{*path}', (_req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
-    res.sendFile(join(publicDir, 'index.html'));
+    const indexPath = join(publicDir, 'index.html');
+    if (existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(404).json({ error: 'Not found' });
+    }
   });
 
   // ── Error handler ────────────────────────────────────────────────────────

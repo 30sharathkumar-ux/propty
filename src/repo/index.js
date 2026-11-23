@@ -4,17 +4,14 @@
  * implementation would – swap this file to change the storage backend.
  */
 
-import { readFileSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 import { randomUUID } from 'node:crypto';
 import { now, FAIRNESS_WINDOW_DAYS } from '../config.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = join(__dirname, '../../data');
+const require = createRequire(import.meta.url);
 
 // ── Seed data ─────────────────────────────────────────────────────────────────
-const rawItems = JSON.parse(readFileSync(join(DATA_DIR, 'seed.json'), 'utf8'));
+const rawItems = require('../../data/seed.json');
 
 // Lab distance matrix (symmetric): 0 = same lab, higher = farther
 const LAB_DISTANCE = {
