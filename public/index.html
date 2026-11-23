@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LabLink – GenAI-powered campus laboratory resource-sharing platform">
+  <title>LabLink – Campus Lab Resource Sharing</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <div class="logo" aria-label="LabLink">
+        <svg aria-hidden="true" width="28" height="28" viewBox="0 0 28 28">
+          <circle cx="14" cy="14" r="12" fill="none" stroke="#4f46e5" stroke-width="2.5"/>
+          <path d="M9 10h10M9 14h7M9 18h5" stroke="#4f46e5" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span>LabLink</span>
+      </div>
+
+      <nav class="main-nav" aria-label="Main navigation">
+        <ul role="list">
+          <li><a href="#discover"  class="nav-link" data-view="discover"  aria-current="page">Discover</a></li>
+          <li><a href="#bookings"  class="nav-link" data-view="bookings">My Bookings</a></li>
+          <li><a href="#projects"  class="nav-link" data-view="projects">Projects</a></li>
+          <li><a href="#approvals" class="nav-link" data-view="approvals" id="nav-approvals" hidden>Approvals</a></li>
+          <li><a href="#analytics" class="nav-link" data-view="analytics" id="nav-analytics" hidden>Analytics</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-controls">
+        <!-- Notification bell -->
+        <button class="btn-icon" id="btn-notifications" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+          <svg aria-hidden="true" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+          </svg>
+          <span class="notif-badge" id="notif-count" hidden aria-label="unread notifications">0</span>
+        </button>
+
+        <!-- Role switcher -->
+        <div class="role-switcher">
+          <label for="role-select" class="sr-only">Switch role (demo)</label>
+          <select id="role-select" aria-label="Current role (demo mode)">
+            <option value="student:u-stu-alice">Student – Alice</option>
+            <option value="student:u-stu-bob">Student – Bob</option>
+            <option value="student:u-stu-carol">Student – Carol</option>
+            <option value="student:u-stu-dave">Student – Dave</option>
+            <option value="faculty:u-fac-cse">Faculty – CSE</option>
+            <option value="faculty:u-fac-ece">Faculty – ECE</option>
+            <option value="faculty:u-fac-mech">Faculty – Mech</option>
+            <option value="faculty:u-fac-rob">Faculty – Robotics</option>
+            <option value="technician:u-tech-raj">Technician – Raj</option>
+            <option value="admin:u-admin">Admin</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification panel -->
+  <div id="notif-panel" class="notif-panel" role="dialog" aria-label="Notifications" aria-modal="true" hidden>
+    <div class="notif-panel-header">
+      <h2>Notifications</h2>
+      <button class="btn-icon" id="btn-close-notif" aria-label="Close notifications">✕</button>
+    </div>
+    <ul id="notif-list" class="notif-list" role="list" aria-live="polite" aria-label="Your notifications">
+    </ul>
+  </div>
+  <div id="notif-backdrop" class="backdrop" hidden aria-hidden="true"></div>
+
+  <main id="main-content" class="main-content">
+    <!-- Live region for search results and status updates -->
+    <div aria-live="polite" aria-atomic="false" class="sr-only" id="live-region"></div>
+
+    <!-- ── DISCOVER VIEW ───────────────────────────────────────────────────── -->
+    <section id="view-discover" class="view active" aria-label="Discover equipment">
+      <div class="view-header">
+        <h1>Discover Lab Equipment</h1>
+        <p class="view-subtitle">Find and book specialised equipment across all departments</p>
+      </div>
+
+      <div class="search-panel">
+        <div class="search-row">
+          <label for="search-input" class="sr-only">Search equipment</label>
+          <div class="search-wrapper">
+            <svg aria-hidden="true" class="search-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input
+              type="search"
+              id="search-input"
+              class="search-input"
+              placeholder="Search: 5G antenna, computer vision, FPGA…"
+              aria-label="Search equipment by name, description or use case"
+              autocomplete="off"
+              aria-controls="search-results"
+              aria-autocomplete="list"
+            >
+          </div>
+          <button class="btn btn-primary" id="btn-search" aria-label="Search">Search</button>
+        </div>
+
+        <div class="filter-row" role="group" aria-label="Search filters">
+          <label for="filter-dept" class="sr-only">Filter by department</label>
+          <select id="filter-dept" aria-label="Department">
+            <option value="">All departments</option>
+            <option value="ECE">ECE</option>
+            <option value="CSE">CSE</option>
+            <option value="Mechanical">Mechanical</option>
+            <option value="Robotics">Robotics</option>
+          </select>
+
+          <label for="filter-category" class="sr-only">Filter by category</label>
+          <select id="filter-category" aria-label="Category">
+            <option value="">All categories</option>
+            <option value="oscilloscope">Oscilloscope</option>
+            <option value="vna">VNA</option>
+            <option value="spectrum-analyser">Spectrum Analyser</option>
+            <option value="dev-board">Dev Board</option>
+            <option value="workstation">Workstation</option>
+            <option value="3d-printer">3D Printer</option>
+            <option value="fpga">FPGA</option>
+            <option value="sensor">Sensor</option>
+            <option value="robotic-arm">Robotic Arm</option>
+            <option value="cnc">CNC</option>
+            <option value="soldering">Soldering</option>
+            <option value="vr-headset">VR Headset</option>
+          </select>
+
+          <label for="filter-status" class="sr-only">Filter by status</label>
+          <select id="filter-status" aria-label="Availability">
+            <option value="">Any status</option>
+            <option value="available">Available</option>
+            <option value="approval_required">Approval Required</option>
+          </select>
+
+          <label for="filter-tier" class="sr-only">Filter by tier</label>
+          <select id="filter-tier" aria-label="Tier">
+            <option value="">Any tier</option>
+            <option value="1">Tier 1 (Basic)</option>
+            <option value="2">Tier 2 (Intermediate)</option>
+            <option value="3">Tier 3 (Advanced)</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="search-results" role="region" aria-label="Search results" aria-live="polite" aria-busy="false">
+        <p class="results-hint">Type a query above or select a filter to find equipment.</p>
+      </div>
+
+      <div id="pagination-controls" class="pagination" hidden aria-label="Pagination">
+        <button class="btn btn-secondary" id="btn-prev" aria-label="Previous page" disabled>‹ Prev</button>
+        <span id="page-info" aria-live="polite"></span>
+        <button class="btn btn-secondary" id="btn-next" aria-label="Next page" disabled>Next ›</button>
+      </div>
+    </section>
+
+    <!-- ── ITEM DETAIL MODAL ───────────────────────────────────────────────── -->
+    <div id="item-modal" class="modal" role="dialog" aria-modal="true" aria-label="Equipment detail" hidden>
+      <div class="modal-backdrop" id="item-modal-backdrop"></div>
+      <div class="modal-box" role="document" tabindex="-1">
+        <button class="modal-close" id="btn-close-item-modal" aria-label="Close equipment detail">✕</button>
+        <div id="item-modal-content"><!-- populated by JS --></div>
+      </div>
+    </div>
+
+    <!-- ── BOOKINGS VIEW ───────────────────────────────────────────────────── -->
+    <section id="view-bookings" class="view" aria-label="My Bookings" hidden>
+      <div class="view-header">
+        <h1>My Bookings</h1>
+        <button class="btn btn-primary" id="btn-new-booking">+ New Booking Request</button>
+      </div>
+      <div id="bookings-list" aria-live="polite">
+        <p class="loading">Loading bookings…</p>
+      </div>
+    </section>
+
+    <!-- ── PROJECTS VIEW ───────────────────────────────────────────────────── -->
+    <section id="view-projects" class="view" aria-label="Projects" hidden>
+      <div class="view-header">
+        <h1>Projects</h1>
+        <button class="btn btn-primary" id="btn-new-project">+ New Project</button>
+      </div>
+      <div id="projects-list" aria-live="polite">
+        <p class="loading">Loading projects…</p>
+      </div>
+    </section>
+
+    <!-- ── APPROVALS VIEW ─────────────────────────────────────────────────── -->
+    <section id="view-approvals" class="view" aria-label="Approval Queue" hidden>
+      <div class="view-header">
+        <h1>Approval Queue</h1>
+      </div>
+      <div id="approvals-list" aria-live="polite">
+        <p class="loading">Loading pending approvals…</p>
+      </div>
+    </section>
+
+    <!-- ── ANALYTICS VIEW ─────────────────────────────────────────────────── -->
+    <section id="view-analytics" class="view" aria-label="Analytics" hidden>
+      <div class="view-header">
+        <h1>Lab Utilisation Analytics</h1>
+      </div>
+      <div id="analytics-content" aria-live="polite">
+        <p class="loading">Loading analytics…</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ── NEW BOOKING MODAL ──────────────────────────────────────────────────── -->
+  <div id="booking-modal" class="modal" role="dialog" aria-modal="true" aria-label="Request Equipment Booking" hidden>
+    <div class="modal-backdrop" id="booking-modal-backdrop"></div>
+    <div class="modal-box" role="document" tabindex="-1">
+      <button class="modal-close" id="btn-close-booking-modal" aria-label="Close booking form">✕</button>
+      <h2>Request Equipment Booking</h2>
+      <form id="booking-form" novalidate>
+        <div class="form-group">
+          <label for="book-project">Project <span aria-hidden="true">*</span></label>
+          <select id="book-project" required aria-required="true" aria-describedby="book-project-hint">
+            <option value="">Select a project…</option>
+          </select>
+          <span id="book-project-hint" class="field-hint">Select the project this booking is for</span>
+        </div>
+
+        <div class="form-group">
+          <label for="book-item">Equipment <span aria-hidden="true">*</span></label>
+          <select id="book-item" required aria-required="true">
+            <option value="">Select equipment…</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="book-date">Date <span aria-hidden="true">*</span></label>
+          <input type="date" id="book-date" required aria-required="true" aria-describedby="book-date-hint">
+          <span id="book-date-hint" class="field-hint">Weekdays only, 08:00–20:00</span>
+        </div>
+
+        <div class="form-group">
+          <label for="book-hour">Start Hour <span aria-hidden="true">*</span></label>
+          <select id="book-hour" required aria-required="true">
+            <option value="">Select hour…</option>
+            <option value="8">08:00</option><option value="9">09:00</option>
+            <option value="10">10:00</option><option value="11">11:00</option>
+            <option value="12">12:00</option><option value="13">13:00</option>
+            <option value="14">14:00</option><option value="15">15:00</option>
+            <option value="16">16:00</option><option value="17">17:00</option>
+            <option value="18">18:00</option><option value="19">19:00</option>
+          </select>
+        </div>
+
+        <div id="booking-form-error" class="form-error" role="alert" hidden></div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-booking">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── NEW PROJECT MODAL ──────────────────────────────────────────────────── -->
+  <div id="project-modal" class="modal" role="dialog" aria-modal="true" aria-label="Create Project" hidden>
+    <div class="modal-backdrop" id="project-modal-backdrop"></div>
+    <div class="modal-box" role="document" tabindex="-1">
+      <button class="modal-close" id="btn-close-project-modal" aria-label="Close project form">✕</button>
+      <h2>Create Project Card</h2>
+      <form id="project-form" novalidate>
+        <div class="form-group">
+          <label for="proj-title">Project Title <span aria-hidden="true">*</span></label>
+          <input type="text" id="proj-title" required aria-required="true" maxlength="200" placeholder="e.g. Edge Computer Vision for Campus Security">
+        </div>
+        <div class="form-group">
+          <label for="proj-abstract">Abstract <span aria-hidden="true">*</span></label>
+          <textarea id="proj-abstract" rows="3" required aria-required="true" maxlength="5000" placeholder="Brief description of the project goals and methods"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="proj-course">Course / Club Code <span aria-hidden="true">*</span></label>
+          <input type="text" id="proj-course" required aria-required="true" maxlength="20" placeholder="e.g. CS499">
+        </div>
+        <div class="form-group">
+          <label for="proj-deadline">Hard Deadline <span aria-hidden="true">*</span></label>
+          <input type="date" id="proj-deadline" required aria-required="true" aria-describedby="proj-deadline-hint">
+          <span id="proj-deadline-hint" class="field-hint">Date by which the project must be complete</span>
+        </div>
+        <div class="form-group">
+          <label for="proj-hours">Hours Needed <span aria-hidden="true">*</span></label>
+          <input type="number" id="proj-hours" required aria-required="true" min="1" max="500" value="8">
+        </div>
+        <div id="project-form-error" class="form-error" role="alert" hidden></div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-project">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── CONFLICT DEMO MODAL ────────────────────────────────────────────────── -->
+  <div id="demo-modal" class="modal" role="dialog" aria-modal="true" aria-label="Conflict Resolution Demo" hidden>
+    <div class="modal-backdrop" id="demo-modal-backdrop"></div>
+    <div class="modal-box modal-box--wide" role="document" tabindex="-1">
+      <button class="modal-close" id="btn-close-demo-modal" aria-label="Close demo">✕</button>
+      <h2>Conflict Mediator Demo</h2>
+      <p class="demo-label"><span class="badge badge--info">Admin Demo</span> Simulates 3 competing requests for the same slot</p>
+      <div id="demo-content" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <!-- ── 3D VIEWER MODAL ───────────────────────────────────────────────────── -->
+  <div id="viewer-modal" class="modal" role="dialog" aria-modal="true" aria-label="3D Equipment Viewer" hidden>
+    <div class="modal-backdrop" id="viewer-modal-backdrop"></div>
+    <div class="modal-box modal-box--wide" role="document" tabindex="-1">
+      <button class="modal-close" id="btn-close-viewer-modal" aria-label="Close 3D viewer">✕</button>
+      <div id="viewer-container">
+        <!-- 3D viewer loaded lazily -->
+        <p class="loading">Loading 3D viewer…</p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer" role="contentinfo">
+    <p>LabLink &copy; 2024 — <small>⚠ Role switcher is a demo only. Campus SSO would replace this in production.</small></p>
+  </footer>
+
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

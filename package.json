@@ -1,0 +1,30 @@
+{
+  "name": "lablink",
+  "version": "1.0.0",
+  "description": "GenAI-powered campus laboratory resource-sharing platform",
+  "type": "module",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "lint": "eslint src/ --max-warnings=0",
+    "test": "node --experimental-vm-modules --test test/**/*.test.js",
+    "test:coverage": "node --experimental-vm-modules --test --experimental-test-coverage test/**/*.test.js"
+  },
+  "dependencies": {
+    "@google/genai": "1.52.0",
+    "compression": "1.8.2",
+    "express": "5.3.0",
+    "express-rate-limit": "8.7.5",
+    "helmet": "8.3.0",
+    "qrcode": "1.5.4",
+    "three": "0.187.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.15.0"
+  }
+}
