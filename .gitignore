@@ -5,3 +5,5 @@ logs/
 *.log
 .DS_Store
 Thumbs.db
+# Keep vendored three.js (committed so Vercel doesn't need to copy it)
+!public/vendor/

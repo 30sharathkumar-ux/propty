@@ -9,6 +9,7 @@ import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { existsSync } from 'node:fs';
 
 import { attachUser, requestLogger, errorHandler } from './middleware/index.js';
 import { IS_PRODUCTION, API_RATE_LIMIT_WINDOW_MS, API_RATE_LIMIT_MAX, GEMINI_RATE_LIMIT_MAX, DEMO_MODE } from './config.js';
@@ -106,8 +107,12 @@ export function createApp() {
 
   // ── Static files (long cache for assets, no-cache for HTML) ─────────────
   const publicDir = join(__dirname, '../public');
+  // Serve vendored three.js – committed copy works on Vercel (no node_modules access)
+  // Falls back to node_modules for local dev if the copy doesn't exist.
+  const threeVendorDir = join(__dirname, '../public/vendor/three');
+  const threeNodeDir   = join(__dirname, '../node_modules/three/build');
   app.use('/vendor/three', express.static(
-    join(__dirname, '../node_modules/three/build'),
+    existsSync(threeVendorDir) ? threeVendorDir : threeNodeDir,
     { maxAge: IS_PRODUCTION ? '30d' : 0 }
   ));
   app.use(express.static(publicDir, {
